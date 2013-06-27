@@ -25,7 +25,7 @@
 #define START_SEQ 1000
 
 
-#define REQUEST "GET / HTTP/1.1\r\nHost: www.ttest.com\r\n\r\n"
+#define REQUEST  "GET / HTTP/1.1\r\nHost: www.test.com\r\n\r\n"
 #define RESPONSE "HTTP/1.1 200 OK\r\n\r\nthis is a test\r\n"
 
 char *start_src_ip;
@@ -123,7 +123,7 @@ void ctrlc(int sig) {
     exit(0);
 }
 
-uint16_t tcp_sum_calc(uint16_t len_tcp, uint16_t *src_addr, uint16_t *dest_addr, uint16_t *buff);
+uint16_t tsc(uint16_t len_tcp, uint16_t *src_addr, uint16_t *dest_addr, uint16_t *buff);
 
 uint8_t *build_tcp_syn(uint8_t *buffer, uint32_t saddr, uint32_t daddr, uint16_t sport, uint16_t dport);
 uint8_t *build_tcp_syn_ack(uint8_t *buffer);
@@ -419,7 +419,7 @@ void *responder(void *params) {
 
                     buffer = build_request(buffer);
 
-                    if (sendto(raw_socket, buffer, HDRS_SIZE + sizeof(REQUEST), 0, (struct sockaddr *)&daddr, sizeof(struct sockaddr)) < 0) {
+                    if (sendto(raw_socket, buffer, HDRS_SIZE + strlen(REQUEST), 0, (struct sockaddr *)&daddr, sizeof(struct sockaddr)) < 0) {
                         perror("sendto() error");
                     }
 
@@ -438,7 +438,7 @@ void *responder(void *params) {
 
                     request_received++;
 
-                    if (sendto(raw_socket, buffer, HDRS_SIZE + sizeof(RESPONSE), 0, (struct sockaddr *)&daddr, sizeof(struct sockaddr)) < 0) {
+                    if (sendto(raw_socket, buffer, HDRS_SIZE + strlen(RESPONSE), 0, (struct sockaddr *)&daddr, sizeof(struct sockaddr)) < 0) {
                         perror("sendto() error");
                     }
 
@@ -689,7 +689,7 @@ uint8_t *build_tcp_syn(uint8_t *buffer, uint32_t saddr, uint32_t daddr, uint16_t
     tcpheader->res2 = 0;
     tcpheader->window = htons(TCP_WIN_SIZE);
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
     tcpheader->urg_ptr = 0;
 
     return buffer;
@@ -720,7 +720,7 @@ uint8_t *build_tcp_syn_ack(uint8_t *buffer) {
     tcpheader->ack = 1;
     tcpheader->ack_seq = htonl(1001);
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 
@@ -749,7 +749,7 @@ uint8_t *build_tcp_ack(uint8_t *buffer) {
     tcpheader->syn = 0;
     tcpheader->seq = htonl(1001);
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 
@@ -770,7 +770,7 @@ uint8_t *build_request(uint8_t *buffer) {
 
     strcpy(tcpdata, REQUEST);
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr) + sizeof(REQUEST), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr) + strlen(REQUEST), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 
@@ -802,12 +802,12 @@ uint8_t *build_response(uint8_t *buffer) {
 
     seqtmp = tcpheader->seq;
     tcpheader->seq = tcpheader->ack_seq;
-    tcpheader->ack_seq = htonl(ntohl(seqtmp) + sizeof(REQUEST));
+    tcpheader->ack_seq = htonl(ntohl(seqtmp) + strlen(REQUEST));
 
 
     strcpy(tcpdata, RESPONSE);
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr) + sizeof(RESPONSE), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr) + strlen(RESPONSE), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 }
@@ -824,10 +824,10 @@ uint8_t *build_1fin(uint8_t *buffer) {
     ipheader->id = htons(6);
 
     tcpheader->fin = 1;
-    tcpheader->seq = htonl(ntohl(tcpheader->seq) + sizeof(RESPONSE));
+    tcpheader->seq = htonl(ntohl(tcpheader->seq) + strlen(RESPONSE));
 
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 }
@@ -860,7 +860,7 @@ uint8_t *build_2fin(uint8_t *buffer) {
     tcpheader->ack_seq = htonl(ntohl(seqtmp) + 1);
 
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 }
@@ -895,46 +895,45 @@ uint8_t *build_last_ack(uint8_t *buffer) {
     tcpheader->ack_seq = htonl(ntohl(seqtmp) + 1);
 
     tcpheader->check = 0;
-    tcpheader->check = tcp_sum_calc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
+    tcpheader->check = tsc(sizeof(struct tcphdr), (uint16_t *)&ipheader->saddr, (uint16_t *)&ipheader->daddr, (uint16_t *)(buffer+sizeof(struct iphdr)));
 
     return buffer;
 }
 
 
 
-        
-// does not work for odd
-uint16_t tcp_sum_calc(uint16_t len_tcp, uint16_t *src_addr, uint16_t *dest_addr, uint16_t *buff)
+// Thanks to http://www.bloof.de/tcp_checksumming
+uint16_t tsc(uint16_t len_tcp, uint16_t *src_addr, uint16_t *dest_addr, uint16_t *buff)
 {
       
     uint16_t prot_tcp = 6;
     long sum;
     int i;
+    uint16_t nleft;
+    uint16_t *w;
+
     sum = 0;
+    nleft = len_tcp;
+    w = buff;
     
-    /* Check if the tcp length is even or odd.  Add padding if odd. */
-    if((len_tcp % 2) == 1){
-        buff[len_tcp] = 0;  // Empty space in the ip buffer should be 0 anyway.
-        len_tcp += 1; // incrase length to make even.
+    while(nleft > 1) {
+        sum += *w++;
+        nleft -= 2;
     }
-    
+
+    if(nleft > 0) {
+        sum += *w&ntohs(0xFF00);
+    }
+   
     /* add the pseudo header */ 
-    sum += ntohs(src_addr[0]);
-    sum += ntohs(src_addr[1]);
-    sum += ntohs(dest_addr[0]);
-    sum += ntohs(dest_addr[1]);
-    sum += len_tcp; // already in host format.
-    sum += prot_tcp; // already in host format.
+    sum += src_addr[0];
+    sum += src_addr[1];
+    sum += dest_addr[0];
+    sum += dest_addr[1];
+    sum += htons(len_tcp); 
+    sum += htons(prot_tcp); 
       
-    /* 
-     * calculate the checksum for the tcp header and payload
-     * len_tcp represents number of 8-bit bytes, 
-     * we are working with 16-bit words so divide len_tcp by 2. 
-     */
-    for(i=0;i<(len_tcp/2);i++){
-        sum += ntohs(buff[i]);
-    }
-    
+   
     // keep only the last 16 bits of the 32 bit calculated sum and add the carries
     sum = (sum & 0xFFFF) + (sum >> 16);
     sum += (sum >> 16);
@@ -942,7 +941,7 @@ uint16_t tcp_sum_calc(uint16_t len_tcp, uint16_t *src_addr, uint16_t *dest_addr,
     // Take the bitwise complement of sum
     sum = ~sum;
 
-    return htons(((uint16_t) sum));
+    return ((uint16_t)sum);
 }
 
 
