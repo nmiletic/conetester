@@ -697,7 +697,7 @@ uint8_t *build_tcp_syn(uint8_t *buffer, uint32_t saddr, uint32_t daddr, uint16_t
 
     ipheader->ihl = 5;
     ipheader->version = 4;
-    ipheader->tos = 15;
+    ipheader->tos = 0;
     ipheader->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr);
     ipheader->id = htons(1);
     ipheader->frag_off = 0;
