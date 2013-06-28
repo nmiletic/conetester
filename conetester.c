@@ -72,6 +72,7 @@ void ctrlc(int sig) {
 
         printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         printf("Current rate: %d\n", inter_rate);
+        printf("Total unique TCP SYNs to send: %d\n", num_src_port * num_src_ip * num_dst_ip);
         printf("----------------------------------\n");
         printf("        CLIENT STATS             \n");
         printf("==================================\n");
@@ -311,6 +312,7 @@ void *print_stats(void *params) {
 
             printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             printf("Current rate: %d\n", inter_rate);
+            printf("Total unique TCP SYNs to send: %d\n", num_src_port * num_src_ip * num_dst_ip);
             printf("----------------------------------\n");
             printf("        CLIENT STATS             \n");
             printf("==================================\n");
