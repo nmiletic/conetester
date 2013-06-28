@@ -42,7 +42,7 @@ char *network;
 char *netmask;
 long ns_sleep;
 long rate, inter_rate, time_to_sec;
-long ramp_up_time;
+long ramp_up_time = 0;
 int full_speed = 0;
 int test_is_done = 0;
 int dont_close = 0;
@@ -64,7 +64,7 @@ int fin2_received = 0;
 int last_ack_sent = 0;
 int last_ack_received = 0;
 
-int client = 0;
+int client = 3;
 
 void ctrlc(int sig) {
 
@@ -143,6 +143,8 @@ void *print_stats(void *ptr);
 
 void usage(void);
 
+int is_ip_valid(char *ipaddress);
+
 // !!! This function has been taken from:
 // http://rt.wiki.kernel.org/index.php/Squarewave-example
 /* the struct timespec consists of nanoseconds
@@ -174,11 +176,11 @@ int main(int argc, char* argv[]) {
     (void) signal(SIGINT, ctrlc);
 
     start_src_ip = NULL;
-    num_src_ip = 1;
+    num_src_ip = 0;
     start_dst_ip = NULL;
-    num_dst_ip = 1;
-    start_src_port = 10000;
-    num_src_port = 10;
+    num_dst_ip = 0;
+    start_src_port = 0;
+    num_src_port = 0;
     start_dst_port = 80;
     num_dst_port = 1;
     tcp_win_size = 30000;
@@ -236,6 +238,35 @@ int main(int argc, char* argv[]) {
         default:
             usage();
             break;
+        }
+    }
+
+    if (client == 3) {
+        usage();
+        exit(-1);
+    }
+
+    if (client == 0) {
+        if (network == NULL || netmask == NULL) {
+            usage();
+            exit(-1);
+        }
+        else if (!is_ip_valid(network) || !is_ip_valid(netmask)) {
+            usage();
+            exit(-1);
+        }
+    }
+
+    if (client == 1) {
+        if ( start_src_ip == NULL || start_dst_ip == NULL || start_src_port == 0
+                || num_src_port == 0 || num_src_ip == 0 || num_dst_ip == 0 || network == NULL || netmask == NULL
+                    || rate == 0 || ramp_up_time == 0 ) {
+            usage();
+            exit(-1);
+        }
+        else if (!is_ip_valid(start_src_ip) || !is_ip_valid(start_dst_ip) || !is_ip_valid(network) || !is_ip_valid(netmask)) {
+            usage();
+            exit(-1); 
         }
     }
 
@@ -900,6 +931,11 @@ uint8_t *build_last_ack(uint8_t *buffer) {
     return buffer;
 }
 
+int is_ip_valid(char *ipaddress) {
+    struct sockaddr_in sa;
+    
+    return inet_pton(AF_INET, ipaddress, &(sa.sin_addr));
+}
 
 
 // Thanks to http://www.bloof.de/tcp_checksumming
