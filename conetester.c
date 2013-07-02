@@ -950,7 +950,7 @@ uint16_t tsc(uint16_t len_tcp, uint16_t *src_addr, uint16_t *dest_addr, uint16_t
 
 
 void usage (void) {
-    fprintf(stderr,"Usage: tester OPTIONS\n"
+    fprintf(stderr,"Usage: conetester OPTIONS\n"
         "-S : Server mode. This instance will not initiate connections.\n"
         "   -z server_network : Enter network address which includes all server IP addresses\n"
         "   -x server_netmask : Enter netmask for the above server network address\n"
@@ -979,10 +979,10 @@ void usage (void) {
         "2. Add routes to client and server networks on the firewall pointing to linux servers.\n"
         "\n"
         "3. Start the server on servers linux: \n"
-        "    ./tester -S -z 2.2.2.0 -x 255.255.255.0 \n"
+        "    ./conetester -S -z 2.2.2.0 -x 255.255.255.0 \n"
         "\n"
         "4. Start the client on clients linux. \n"
-        "    ./tester -C -s 1.1.1.1 -m 10 -b 5 -d 2.2.2.1 -p 10000 -n 10 -z 1.1.1.0 -x 255.255.255.0 -r 100 -u 10\n"         
+        "    ./conetester -C -s 1.1.1.1 -m 10 -b 5 -d 2.2.2.1 -p 10000 -n 10 -z 1.1.1.0 -x 255.255.255.0 -r 100 -u 10\n"         
         "\n\n"
         "Please report bugs to nemanja@nemanjamiletic.com\n");
     exit(1);
