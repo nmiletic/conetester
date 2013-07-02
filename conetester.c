@@ -1,3 +1,5 @@
+// Please report bugs to nemanja@nemanjamiletic.com
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -66,59 +68,16 @@ int last_ack_received = 0;
 
 int client = 3;
 
+void print_client_stats(void);
+void print_server_stats(void);
+
 void ctrlc(int sig) {
 
         if (client) {
-
-        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        printf("Current rate: %d\n", inter_rate);
-        printf("Total unique TCP SYNs to send: %d\n", num_src_port * num_src_ip * num_dst_ip);
-        printf("----------------------------------\n");
-        printf("        CLIENT STATS             \n");
-        printf("==================================\n");
-        printf("SYN_SENT           %d\n", syn_sent);
-        printf("----------------------------------\n");
-        printf("SYN_ACK_RECEIVED   %d\n", syn_ack_received);
-        printf("----------------------------------\n");
-        printf("ACK_SENT           %d\n", ack_sent);
-        printf("----------------------------------\n");
-        printf("REQUEST_SENT       %d\n", request_sent);
-        printf("----------------------------------\n");
-        printf("RESPONSE_RECEIVED  %d\n", response_received);
-        printf("----------------------------------\n");
-        printf("FIN1_RECEIVED      %d\n", fin1_received);
-        printf("----------------------------------\n");
-        printf("FIN2_SENT          %d\n", fin2_sent);
-        printf("----------------------------------\n");
-        printf("LAST_ACK_RECEIVED  %d\n", last_ack_received);
-        printf("----------------------------------\n");
-        printf("\n\n");
-
+            print_client_stats();
         }
         else {
-
-        printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        printf("----------------------------------\n");
-        printf("        SERVER STATS             \n");
-        printf("==================================\n");
-        printf("SYN_RECEIVED       %d\n", syn_received);
-        printf("----------------------------------\n");
-        printf("SYN_ACK_SENT       %d\n", syn_ack_sent);
-        printf("----------------------------------\n");
-        printf("ACK_RECEIVED       %d\n", ack_received);
-        printf("----------------------------------\n");
-        printf("REQUEST_RECEIVED   %d\n", request_received);
-        printf("----------------------------------\n");
-        printf("RESPONSE_SENT      %d\n", response_sent);
-        printf("----------------------------------\n");
-        printf("FIN1_SENT          %d\n", fin1_sent);
-        printf("----------------------------------\n");
-        printf("FIN2_RECEIVED      %d\n", fin2_received);
-        printf("----------------------------------\n");
-        printf("LAST_ACK_SENT      %d\n", last_ack_sent);
-        printf("----------------------------------\n");
-        printf("\n\n");
-
+            print_server_stats();
         }
 
     exit(0);
@@ -309,66 +268,73 @@ void *print_stats(void *params) {
     while (1) {
 
         if (client) {
-
-            printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            printf("Current rate: %d\n", inter_rate);
-            printf("Total unique TCP SYNs to send: %d\n", num_src_port * num_src_ip * num_dst_ip);
-            printf("----------------------------------\n");
-            printf("        CLIENT STATS             \n");
-            printf("==================================\n");
-            printf("SYN_SENT           %d\n", syn_sent);
-            printf("----------------------------------\n");
-            printf("SYN_ACK_RECEIVED   %d\n", syn_ack_received);
-            printf("----------------------------------\n");
-            printf("ACK_SENT           %d\n", ack_sent);
-            printf("----------------------------------\n");
-            printf("REQUEST_SENT       %d\n", request_sent);
-            printf("----------------------------------\n");
-            printf("RESPONSE_RECEIVED  %d\n", response_received);
-            printf("----------------------------------\n");
-            printf("FIN1_RECEIVED      %d\n", fin1_received);
-            printf("----------------------------------\n");
-            printf("FIN2_SENT          %d\n", fin2_sent);
-            printf("----------------------------------\n");
-            printf("LAST_ACK_RECEIVED  %d\n", last_ack_received);
-            printf("----------------------------------\n");
-            printf("\n\n");
+            print_client_stats();
             if (test_is_done) {
                 printf("Test is done. Press CTRL+C to exit.\n");
             }
-
         }
         else {
-
-            printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            printf("----------------------------------\n");
-            printf("        SERVER STATS             \n");
-            printf("==================================\n");
-            printf("SYN_RECEIVED       %d\n", syn_received);
-            printf("----------------------------------\n");
-            printf("SYN_ACK_SENT       %d\n", syn_ack_sent);
-            printf("----------------------------------\n");
-            printf("ACK_RECEIVED       %d\n", ack_received);
-            printf("----------------------------------\n");
-            printf("REQUEST_RECEIVED   %d\n", request_received);
-            printf("----------------------------------\n");
-            printf("RESPONSE_SENT      %d\n", response_sent);
-            printf("----------------------------------\n");
-            printf("FIN1_SENT          %d\n", fin1_sent);
-            printf("----------------------------------\n");
-            printf("FIN2_RECEIVED      %d\n", fin2_received);
-            printf("----------------------------------\n");
-            printf("LAST_ACK_SENT      %d\n", last_ack_sent);
-            printf("----------------------------------\n");
-            printf("\n\n");
-
+           print_server_stats();
+           printf("\n\n");
         }
-
 
         sleep(1);
     }
 }
 
+void print_client_stats(void) {
+
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    printf("Current rate: %d\n", inter_rate);
+    printf("Total unique TCP SYNs to send: %d\n", num_src_port * num_src_ip * num_dst_ip);
+    printf("----------------------------------\n");
+    printf("        CLIENT STATS             \n");
+    printf("==================================\n");
+    printf("SYN_SENT           %d\n", syn_sent);
+    printf("----------------------------------\n");
+    printf("SYN_ACK_RECEIVED   %d\n", syn_ack_received);
+    printf("----------------------------------\n");
+    printf("ACK_SENT           %d\n", ack_sent);
+    printf("----------------------------------\n");
+    printf("REQUEST_SENT       %d\n", request_sent);
+    printf("----------------------------------\n");
+    printf("RESPONSE_RECEIVED  %d\n", response_received);
+    printf("----------------------------------\n");
+    printf("FIN1_RECEIVED      %d\n", fin1_received);
+    printf("----------------------------------\n");
+    printf("FIN2_SENT          %d\n", fin2_sent);
+    printf("----------------------------------\n");
+    printf("LAST_ACK_RECEIVED  %d\n", last_ack_received);
+    printf("----------------------------------\n");
+    printf("\n\n");
+
+}
+
+void print_server_stats(void) {
+
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    printf("----------------------------------\n");
+    printf("        SERVER STATS             \n");
+    printf("==================================\n");
+    printf("SYN_RECEIVED       %d\n", syn_received);
+    printf("----------------------------------\n");
+    printf("SYN_ACK_SENT       %d\n", syn_ack_sent);
+    printf("----------------------------------\n");
+    printf("ACK_RECEIVED       %d\n", ack_received);
+    printf("----------------------------------\n");
+    printf("REQUEST_RECEIVED   %d\n", request_received);
+    printf("----------------------------------\n");
+    printf("RESPONSE_SENT      %d\n", response_sent);
+    printf("----------------------------------\n");
+    printf("FIN1_SENT          %d\n", fin1_sent);
+    printf("----------------------------------\n");
+    printf("FIN2_RECEIVED      %d\n", fin2_received);
+    printf("----------------------------------\n");
+    printf("LAST_ACK_SENT      %d\n", last_ack_sent);
+    printf("----------------------------------\n");
+    printf("\n\n");
+
+}
 
 void *responder(void *params) {
     int byte_count;
@@ -988,7 +954,8 @@ void usage (void) {
         "-S : Server mode. This instance will not initiate connections.\n"
         "   -z server_network : Enter network address which includes all server IP addresses\n"
         "   -x server_netmask : Enter netmask for the above server network address\n"
-        "   -J                : Don't close the connection. There will be no FINs sent. Good for filling up the sesssion table.\n\n\n"
+        "Server mode only options:\n"
+        "   [-J]              : Optional parameter. Don't close the connection. There will be no FINs sent. Good for filling up the sesssion table.\n\n\n"
         "-C : Client mode. This instance will initiate connections per specified rate.\n"
         "   -z client_network         : Enter network address which includes all client IP addresses\n"
         "   -x client_netmask         : Enter netmask for the above client network address\n"
@@ -1005,15 +972,19 @@ void usage (void) {
         "Example usage:\n"
         "<1.1.1.1-1.1.1.10>---<192.168.1.1>-<Firewall>-<10.193.16.1>----<2.2.2.1-2.2.2.5>\n"
         "    Clients             Trust                    Untrust           Servers      \n"
-        "1. Add routes to firewall interfaces:\n"
+        "1. Add routes pointing to firewall's interfaces:\n"
         "    On servers linux: route add -net 1.1.1.0/24 gw 10.193.16.1\n"
         "    On clients linux: route add -net 2.2.2.0/24 gw 192.168.1.1\n"
         "\n"
-        "2. Start the server on servers linux: \n"
+        "2. Add routes to client and server networks on the firewall pointing to linux servers.\n"
+        "\n"
+        "3. Start the server on servers linux: \n"
         "    ./tester -S -z 2.2.2.0 -x 255.255.255.0 \n"
         "\n"
-        "3. Start the client on clients linux. \n"
-        "    ./tester -C -s 1.1.1.1 -m 10 -b 5 -d 2.2.2.1 -p 10000 -n 10 -z 1.1.1.0 -x 255.255.255.0 -r 100 -u 10\n");           
-exit(1);
+        "4. Start the client on clients linux. \n"
+        "    ./tester -C -s 1.1.1.1 -m 10 -b 5 -d 2.2.2.1 -p 10000 -n 10 -z 1.1.1.0 -x 255.255.255.0 -r 100 -u 10\n"         
+        "\n\n"
+        "Please report bugs to nemanja@nemanjamiletic.com\n");
+    exit(1);
 }
 
